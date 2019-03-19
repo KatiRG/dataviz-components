@@ -1,0 +1,39 @@
+/* commodities */
+.ores circle {
+	fill: #5DC1BE;
+}
+.coal circle {
+	fill: #F6CF22;
+}
+.mixed circle {
+	fill: #BF4D28;
+}
+.lumber circle {
+	fill: #5A2E2E;
+}
+.woodpulp circle {
+	fill: #DFBA69;
+}
+
+/* table stylings */
+.bubble-row-text {
+  font-size: 10px;
+  text-anchor: start;
+}
+.bubble-text {
+  font-size: 10px;
+  text-anchor: middle;
+}
+.bubble-col {
+  font-size: 12px;
+}
+.bubble-col .tick {
+  text-anchor: end;
+}
+.bubble-col .tick text {
+  font-size: 12px;
+  fill: #333;
+}
+.bubble-col .tick line {
+	stroke: none;
+}

@@ -1,0 +1,11 @@
+{
+  "en": {
+    "bubbleTable": {
+      "coal": "Coal",
+      "mixed": "Mixed loads",
+      "ores": "Iron ores",
+      "lumber": "Lumber",
+      "woodpulp": "Wood pulp"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fr": {
+    "bubbleTable": {
+      "coal": "Charbon",
+      "mixed": "Chargements mixtes",
+      "ores": "Minerais de fer",
+      "lumber": "Bois d'oeuvre",
+      "woodpulp": "Pâte de bois"
+    }
+  }
+}
