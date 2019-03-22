@@ -64,7 +64,8 @@ var defaults = {
   groupPadding: 0.2,
   barPadding: 0.1,
   aspectRatio: 16 / 9,
-  width: 600
+  width: 600,
+  barTableID: "barTable"
 };
 
 this.barChart = function(svg, settings, data) {
@@ -86,7 +87,6 @@ this.barChart = function(svg, settings, data) {
         })),
         xAxisObj = chartInner.select(".x.axis"),
         yAxisObj = chartInner.select(".y.axis"),
-        zeroLine = chartInner.select(".zero-line"),
         showValue = sett.showValues,
         valuesX = function() {
           return xFn.apply(this, arguments) + x1.bandwidth() / 2;
@@ -126,7 +126,6 @@ this.barChart = function(svg, settings, data) {
                 val = sett.y.getValue.call(sett, datum);
               switch(Math.sign(val)) {
               case 1:
-              case 0:
                 return "-0.5em";
               case -1:
                 return "1.5em";
@@ -290,18 +289,6 @@ this.barChart = function(svg, settings, data) {
         .exit()
           .remove();
 
-      if (zeroLine.empty()) {
-        zeroLine = chartInner.append("line")
-          .attr("class", "zero-line")
-          .attr("stroke", "#000")
-          .attr("x1", 0)
-          .attr("x2", innerWidth);
-      }
-      zeroLine
-        .transition(transition)
-        .attr("y1", y(0) + .5)
-        .attr("y2", y(0) + .5);
-
       if (xAxisObj.empty()) {
         xAxisObj = chartInner.append("g")
         .attr("class", "x axis")
@@ -322,8 +309,8 @@ this.barChart = function(svg, settings, data) {
       xAxisObj.call(
         d3.axisBottom(x0)
           .ticks(sett.x.ticks)
+          .tickSizeOuter(sett.x.tickSizeOuter ? sett.x.tickSizeOuter : null)
           .tickFormat(sett.x.getTickText ? sett.x.getTickText.bind(sett) : null)
-          .tickSizeOuter(sett.x.outerTicks === false ? 0 : 6)
       );
 
       if (yAxisObj.empty()) {
@@ -345,19 +332,97 @@ this.barChart = function(svg, settings, data) {
       yAxisObj.call(
         d3.axisLeft(y)
           .ticks(sett.y.ticks)
+          .tickSizeOuter(sett.y.tickSizeOuter ? sett.y.tickSizeOuter : null)
           .tickFormat(sett.y.getTickText ? sett.y.getTickText.bind(sett) : null)
-          .tickSizeOuter(sett.x.outerTicks === false ? 0 : 6)
       );
     },
     drawTable = function() {
-      /*var sett = this.settings,
-        summaryId = "chrt-dt-tbl",
+      var sett = this.settings,
+        summaryId = sett.summaryId ? sett.summaryId : "chrt-dt-tbl",
+        tableDiv = d3.select("#" + sett.barTableID),
         filteredData = (sett.filterData && typeof sett.filterData === "function") ?
           sett.filterData(data, "table") : data,
-        parent = svg.select(
-          svg.classed("svg-shimmed") ? function(){return this.parentNode.parentNode;} : function(){return this.parentNode;}
-        ),
-        details = parent.select("details");*/
+        // filteredData = (sett.z.formatData && typeof sett.z.formatData === "function") ?
+        // sett.z.formatData.call(sett, data) : data,
+        parent = tableDiv.select(function() {
+          return this.parentNode;
+        }),
+        details = parent.select("details"),
+        keys = sett.z.getKeys.call(sett, filteredData),
+        table, header, body, dataRows, dataRow, k;
+
+      var formatData = sett.z.formatData.call(sett, filteredData);
+
+
+      if (details.empty()) {
+        details = parent
+          .append("details")
+            .attr("class", "chart-data-table");
+
+        details.append("summary")
+          .attr("id", summaryId)
+          .text(sett.tableTitle);
+
+        table = details
+          .append("table")
+            .attr("class", "table")
+            .attr("aria-labelledby", summaryId);
+
+        header = table.append("thead")
+                      .attr("id", "tblHeader")
+                      .append("tr")
+                      .attr("id", "tblHeaderTR");
+        body = table.append("tbody")
+                    .attr("id", "tblBody");
+
+        header.append("th")
+          .attr("id", "thead_h0")
+          .text(sett.z.label);
+
+        for(k = 0; k < keys.length; k++) {
+          header.append("th")
+            .attr("id", "thead_h" + (k + 1)) // k = 0 already used above
+            .attr("class", "tblHeader")
+            .text(sett.z.getText.bind(sett)({
+              key: keys[k]
+            }));
+        }
+        dataRows = body.selectAll("tr")
+          .data(formatData);
+
+        dataRow = dataRows
+        .enter()
+          .append("tr")
+          .attr("id", function(d, i) {
+            return "row" + i;
+          });
+
+        dataRow
+          .append("th")
+          .attr("id", function(d, i) {
+            return "row" + i + "_h0";
+          })
+          .text((sett.x.getText || sett.x.getValue).bind(sett));
+
+        for(k = 0; k < keys.length; k++) {
+          dataRow
+            .append("td")
+            .attr("headers", function(d, i) {
+              return "row" + i + "_h0" + " thead_h" + (k + 1);
+            })
+            .text(function(d) {
+              if (sett.y.getText) {
+                return sett.y.getText.call(sett, d, keys[k]);
+              }
+              return sett.y.getValue.call(sett, d, keys[k]);
+            });
+        }
+
+        if ($ || wb) {
+          $(".chart-data-table summary").trigger("wb-init.wb-details");
+        }
+
+      }
     },
     clear = function() {
       dataLayer.remove();
