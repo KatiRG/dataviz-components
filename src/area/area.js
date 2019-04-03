@@ -271,7 +271,8 @@ this.areaChart = function (svg, settings, data) {
     clear: clear,
     svg: svg
   };
-  svg.attr("viewBox", "0 0 " + outerWidth + " " + outerHeight).attr("preserveAspectRatio", "xMidYMid meet").attr("role", "img").attr("aria-label", mergedSettings.altText);
+  var vboxPadding = 50;
+  svg.attr("viewBox", "0 0 " + (outerWidth+vboxPadding) + " " + (outerHeight+vboxPadding)).attr("preserveAspectRatio", "xMidYMid meet").attr("role", "img").attr("aria-label", mergedSettings.altText);
 
   if (chartInner.empty()) {
     chartInner = svg.append("g").attr("class", "margin-offset").attr("transform", "translate(" + mergedSettings.margin.left + "," + mergedSettings.margin.top + ")");
